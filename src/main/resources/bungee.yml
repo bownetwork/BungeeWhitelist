@@ -1,0 +1,5 @@
+name: BungeeWhitelist
+version: '${project.version}'
+main: com.bownetwork.bungeewhitelist.Main
+description: Basic multi-group whitelist.
+author: BowFun

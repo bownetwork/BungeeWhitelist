@@ -1,0 +1,37 @@
+# Welcome to BungeeWhitelist!
+# This is a plugin to only allow certain groups to log in to the server.
+
+# Prefix
+# Will be included in most messages
+# Use § for colors.
+Prefix: "§7[§6Bungee§3Whitelist§7]"
+
+# Kick reason
+# This is currently directly coded in.
+
+# Admin Group
+# Add player names.
+Admin:
+  - "BowFun"
+  - "TransformerCDR"
+
+# Group 1
+# Add player names.
+Group1:
+  - "Notch"
+
+# Group 2
+# Add player names.
+Group2:
+  - "Technoblade"
+
+# Group 3
+# Add player names.
+Group3:
+  - "Dream"
+
+# Allowed Groups
+# Only groups listed here are whitelisted.
+# Admin is excluded from this check.
+AllowedGroups:
+  - "Group1"
