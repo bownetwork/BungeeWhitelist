@@ -12,6 +12,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 import net.md_5.bungee.event.EventHandler;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 
 public final class Main extends Plugin implements Listener {
@@ -49,12 +50,17 @@ public final class Main extends Plugin implements Listener {
         return resourceFile;
     }
 
-    public Configuration configuration;
+    public Configuration config;
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
         System.out.println("BungeeWhitelist has been unloaded.");
+    }
+
+    public void saveConfig() throws IOException {
+        ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, new File(getDataFolder(), "config.yml"));
+        reloadConfig();
     }
 
     @EventHandler
@@ -66,7 +72,7 @@ public final class Main extends Plugin implements Listener {
         List<String> group2 = config.getStringList("Group2");
         List<String> group3 = config.getStringList("Group3");
         List<String> AllowedGroups = config.getStringList("AllowedGroups");
-        String KickMessage = ChatColor.RED + "You aren't in a group, or your group isn't currently allowed. Please contact us if you have any questions.";
+        String KickMessage = ChatColor.RED + config.getString("KickReason");
         String prefix = config.getString("Prefix");
         if (admin.contains(e.getPlayer().getName())) {
                 e.getPlayer().sendMessage(prefix + " " + ChatColor.AQUA + "Welcome, " + e.getPlayer().getName() + "! You have logged in under Admin.");
@@ -91,6 +97,24 @@ public final class Main extends Plugin implements Listener {
         } else {
             e.getPlayer().disconnect(KickMessage);
         }
+    }
+    public void reloadConfig() {
+        try {
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(
+                    loadResource(this, "config.yml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Boolean validateGroupName(String groupName, boolean containsAdmin) {
+        List<String> groupsThatExist;
+        if (containsAdmin) {
+            groupsThatExist = Arrays.asList("Admin", "Group1", "Group2", "Group3");
+        } else {
+            groupsThatExist = Arrays.asList("Group1", "Group2", "Group3");
+        }
+        return groupsThatExist.contains(groupName);
     }
 }
 
