@@ -3,6 +3,7 @@ package com.bownetwork.bungeewhitelist;
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -21,9 +22,9 @@ public final class Main extends Plugin implements Listener {
     public void onEnable() {
         // Plugin startup logic
         getProxy().getPluginManager().registerListener(this, this);
-        ProxyServer.getInstance().getPluginManager().registerCommand(this, new Command(this));
+        getProxy().getPluginManager().registerCommand(this, new WhitelistCommand(this));
         try {
-            Configuration configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(
                     loadResource(this, "config.yml"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,9 +65,7 @@ public final class Main extends Plugin implements Listener {
     }
 
     @EventHandler
-    public void onLogin(PostLoginEvent e) throws IOException {
-        Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(
-                loadResource(this, "config.yml"));
+    public void onLogin(PostLoginEvent e) {
         List<String> admin = config.getStringList("Admin");
         List<String> group1 = config.getStringList("Group1");
         List<String> group2 = config.getStringList("Group2");
@@ -105,6 +104,7 @@ public final class Main extends Plugin implements Listener {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        checkPlayersAgain();
     }
 
     public Boolean validateGroupName(String groupName, boolean containsAdmin) {
@@ -116,5 +116,39 @@ public final class Main extends Plugin implements Listener {
         }
         return groupsThatExist.contains(groupName);
     }
-}
 
+    // Force checks all players and kicks anyone not whitelisted.
+    public void checkPlayersAgain() {
+        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+            List<String> admin = config.getStringList("Admin");
+            List<String> group1 = config.getStringList("Group1");
+            List<String> group2 = config.getStringList("Group2");
+            List<String> group3 = config.getStringList("Group3");
+            List<String> AllowedGroups = config.getStringList("AllowedGroups");
+            String KickMessage = ChatColor.RED + config.getString("KickReason");
+            if (admin.contains(player.getName())) {
+                return;
+            } else if (group1.contains(player.getName())) {
+                if (AllowedGroups.contains("Group1")) {
+                    return;
+                } else {
+                    player.disconnect(KickMessage);
+                }
+            } else if (group2.contains(player.getName())) {
+                if (AllowedGroups.contains("Group2")) {
+                    return;
+                } else {
+                    player.disconnect(KickMessage);
+                }
+            } else if (group3.contains(player.getName())) {
+                if (AllowedGroups.contains("Group3")) {
+                    return;
+                } else {
+                    player.disconnect(KickMessage);
+                }
+            } else {
+                player.disconnect(KickMessage);
+            }
+        }
+    }
+}
