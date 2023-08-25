@@ -16,7 +16,7 @@ public class WhitelistCommand extends Command implements TabExecutor {
     private Main main;
 
     public WhitelistCommand(Main main) {
-        super("bwhitelist", "", "bwl, blist");
+        super("bwhitelist", "", "bwl");
         this.main = main;
     }
 
